@@ -18,5 +18,7 @@ public:
 	int getID() { return _id; };
 
 	friend std::ostream& operator<<(std::ostream &os, const Student &s);
+	friend bool operator>(const Student &s1, const Student &s2);
+	friend bool operator<(const Student &s1, const Student &s2);
 };
 

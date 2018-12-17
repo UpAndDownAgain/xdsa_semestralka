@@ -8,6 +8,16 @@ std::ostream & operator<<(std::ostream & os, const Student & s)
 	return os;
 }
 
+bool operator>(const Student & s1, const Student & s2)
+{
+	return s1._id > s2._id;
+}
+
+bool operator<(const Student & s1, const Student & s2)
+{
+	return s1._id < s2._id;
+}
+
 Student::~Student()
 {
 }
