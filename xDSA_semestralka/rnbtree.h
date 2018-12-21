@@ -35,6 +35,7 @@ private:
 	void cleanup(Node<T> *n);
 	
 public:
+	RnBtree<T>() : root(nullptr) {};
 	~RnBtree<T>();
 	void push(T item);
 	std::ostream& print(std::ostream& os);
