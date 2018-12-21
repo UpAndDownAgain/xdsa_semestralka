@@ -42,8 +42,6 @@ public:
 	void deleteValue(T item);
 	bool isEmpty();
 	void purge();
-
-	
 };
 
 template<class T>
@@ -217,6 +215,7 @@ template<class T>
 inline void RnBtree<T>::purge()
 {
 	cleanup(root);
+	root = nullptr;
 }
 
 template<class T>
@@ -226,6 +225,7 @@ inline std::ostream& RnBtree<T>::printInOrder(std::ostream &os,Node<T>* n)
 	printInOrder(os, n->leftChild);
 	os << n->value << std::endl;
 	printInOrder(os, n->rightChild);
+	return os;
 }
 
 template<class T>
