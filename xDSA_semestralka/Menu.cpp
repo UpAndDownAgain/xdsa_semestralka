@@ -4,6 +4,7 @@
 
 Menu::Menu(std::initializer_list<std::string> init_list)
 {
+	userInput = NULL;
 	for (auto element : init_list) {
 		menuItems.push_back(element);
 	}
@@ -11,6 +12,7 @@ Menu::Menu(std::initializer_list<std::string> init_list)
 
 Menu::Menu()
 {
+	userInput = NULL;
 }
 
 Menu::~Menu()
