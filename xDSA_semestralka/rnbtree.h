@@ -277,6 +277,14 @@ inline void RnBtree<T>::fixDeletion(Node<T>*& n)
 			setColour(child, 0);
 			delete n;
 		}
+		else {
+			n->parent->rightChild = child;
+			if (child != nullptr) {
+				child->parent = n->parent;
+			}
+			setColour(child, 0);
+			delete n;
+		}
 	}
 	else {
 		Node<T> * sibling = nullptr;
