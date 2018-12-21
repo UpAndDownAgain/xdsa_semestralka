@@ -1,8 +1,7 @@
 #pragma once
 #include <string>
 #include <iostream>
-#include <cstdlib>
-#include <ctime>
+#include <random>
 
 using std::string;
 
@@ -15,7 +14,10 @@ private:
 	int _id;
 
 public:
-	Student();
+	Student(int i) : _id(i) {
+		_jmeno = "John";
+		_prijmeni = "Doe";
+	};
 	Student(string n, string p, int i) : _jmeno(n), _prijmeni(p), _id(i) {};
 	~Student();
 	string getName() { return _jmeno + " " + _prijmeni; };
@@ -24,5 +26,6 @@ public:
 	friend std::ostream& operator<<(std::ostream &os, const Student &s);
 	friend bool operator>(const Student &s1, const Student &s2);
 	friend bool operator<(const Student &s1, const Student &s2);
+	friend bool operator==(const Student &s1, const Student &s2);
 };
 

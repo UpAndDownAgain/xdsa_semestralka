@@ -155,7 +155,6 @@
     <ClInclude Include="pch.h" />
     <ClInclude Include="rnbtree.h" />
     <ClInclude Include="Student.h" />
-    <ClInclude Include="tree.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Menu.cpp" />

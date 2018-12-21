@@ -33,11 +33,15 @@ private:
 	Node<T> * minValueNode(Node<T> *n);
 	void fixDeletion(Node<T> *&n);
 	void cleanup(Node<T> *n);
+	
 public:
 	~RnBtree<T>();
 	void push(T item);
 	std::ostream& print(std::ostream& os);
 	void deleteValue(T item);
+	bool isEmpty();
+	void purge();
+
 	
 };
 
@@ -199,6 +203,19 @@ inline void RnBtree<T>::deleteValue(T item)
 {
 	Node<T> *n = deleteHelper(root, item);
 	fixDeletion(n);
+}
+
+template<class T>
+inline bool RnBtree<T>::isEmpty()
+{
+	if (root = nullptr) return true;
+	return false;
+}
+
+template<class T>
+inline void RnBtree<T>::purge()
+{
+	cleanup(root);
 }
 
 template<class T>

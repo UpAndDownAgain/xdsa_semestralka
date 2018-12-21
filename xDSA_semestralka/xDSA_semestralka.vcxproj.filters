@@ -24,9 +24,6 @@
     <ClInclude Include="Student.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="tree.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="rnbtree.h">
       <Filter>Header Files</Filter>
     </ClInclude>

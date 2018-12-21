@@ -4,7 +4,7 @@
 
 std::ostream & operator<<(std::ostream & os, const Student & s)
 {
-	os << s._id << " - " << s._jmeno << " " << s._prijmeni;
+	os << s._id << " " << s._jmeno << " " << s._prijmeni;
 	return os;
 }
 
@@ -18,12 +18,10 @@ bool operator<(const Student & s1, const Student & s2)
 	return s1._id < s2._id;
 }
 
-Student::Student()
+bool operator==(const Student & s1, const Student & s2)
 {
-	std::srand(std::time(nullptr));
-	_id = std::rand();
-	_jmeno = "John";
-	_prijmeni = "Doe";
+	if (s1._id == s2._id) return true;
+	return false;
 }
 
 Student::~Student()
