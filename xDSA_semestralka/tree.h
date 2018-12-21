@@ -4,16 +4,16 @@
 template<class T>
 struct Node
 {
-	Node *_pLeft;
-	Node *_pRight;
-	Node *_pParent;
+	Node *leftChild;
+	Node *rightChild;
+	Node *parent;
 	bool isRed; // true -> red false-> black
-	T _value;
+	T value;
 
 	Node<T>();
-	Node<T>(T n) : _value(n), _pLeft(nullptr), _pRight(nullptr), _pParent(nullptr) {};
-	Node<T>(T n, Node *p, Node *l, Node *r) : _value(n), _pParent(p), _pLeft(l), _pRight(r) {};
-	Node<T>(T n, Node *p) : _value(n), _pParent(p), _pLeft(nullptr), _pRight(nullptr) {};
+	Node<T>(T n) : value(n), leftChild(nullptr), rightChild(nullptr), parent(nullptr) {};
+	Node<T>(T n, Node *p, Node *l, Node *r) : value(n), parent(p), leftChild(l), rightChild(r) {};
+	Node<T>(T n, Node *p) : value(n), parent(p), leftChild(nullptr), rightChild(nullptr) {};
 
 };
 
@@ -21,20 +21,24 @@ template<class T>
 class Tree
 {
 private:
-	Node<T> *_pRoot;
+	Node<T> *root;
 
 	void deleteHelper(Node<T> *n);
 	void printHelper(Node<T> *n);
-	void leftRotate(Node<T> *&x);
-	void rightRotate(Node<T> *&x);
-	void fixViolations(Node<T> *&n);
-	Node<T> *insertHelper(Node<T> *&n);
+	Node<T> *leftRotate(Node<T> *n);
+	Node<T> *rightRotate(Node<T> *n);
+	Node<T> *insertHelper(Node<T> *n, T &item);
+	void colourFlip(Node<T> *n);
+	Node<T> *moveRedLeft(Node<T> *n);
+	Node<T> *moveRedRight(Node<T> *n);
+	Node<T> *fix(Node<T> *n);
+
 public:
-	Tree() : _pRoot(nullptr) {};
+	Tree() : root(nullptr) {};
 	Tree(T i);
 	~Tree();
 
-	Node<T> *insert(T &item);
+	void insert(T &item);
 
 	void printInOrder();
 	Node<T> * search(T &n);
@@ -43,8 +47,8 @@ public:
 template<class T>
 inline Node<T>::Node()
 {
-	_pLeft = nullptr;
-	_pRight = nullptr;
+	leftChild = nullptr;
+	rightChild = nullptr;
 	isRed = false;
 }
 
@@ -53,8 +57,8 @@ template<class T>
 void Tree<T>::deleteHelper(Node<T> * n)
 {
 	if (n == nullptr) return;
-	deleteHelper(n->_pLeft);
-	deleteHelper(n->_pRight);
+	deleteHelper(n->leftChild);
+	deleteHelper(n->rightChild);
 	delete n;
 }
 
@@ -63,128 +67,106 @@ template<class T>
 void Tree<T>::printHelper(Node<T> * n)
 {
 	if (n == nullptr) return;
-	printHelper(n->_pLeft);
-	std::cout << n->_value << std::endl;
-	printHelper(n->_pRight);
+	printHelper(n->leftChild);
+	std::cout << n->value << std::endl;
+	printHelper(n->rightChild);
 }
 
 template<class T>
-void Tree<T>::leftRotate(Node<T> *&x)
+Node<T> * Tree<T>::rightRotate(Node<T> * n)
 {
-	Node<T> *y = x->_pRight;
-	x->_pRight = y->_pLeft;
+	Node<T> * x = n->leftChild;
+	n->leftChild = n->rightChild;
+	x->rightChild = n;
+	x->isRed = n->rightChild->isRed;
+	x->rightChild->isRed = true;
+	
+	return x;
+}
 
-	if (y->_pLeft != nullptr) {
-		y->_pLeft->_pParent = x;
+template<class T>
+Node<T> * Tree<T>::leftRotate(Node<T> * n)
+{
+	Node<T> * x = n->rightChild;
+	n->rightChild = x->leftChild;
+	x->leftChild = n;
+	x->isRed = x->leftChild->isRed;
+	x->leftChild->isRed = true;
+	return x;
+}
+
+
+template<class T>
+Node<T> * Tree<T>::insertHelper(Node<T> *n, T &item)
+{
+	if (n == nullptr) {
+		return new Node<T>(item);
 	}
-	y->_pParent = x->_pParent;
-	if (x->_pParent == nullptr) {
-		_pRoot = y;
+	if (n->leftChild != nullptr && n->leftChild->isRed
+		&& n->rightChild != nullptr && n->rightChild->isRed) {
+		colourFlip(n);
 	}
-	else if (x == x->_pParent->_pLeft) {
-		x->_pParent->_pLeft = y;
+	if (item == n->value) {
+		return n;
 	}
 	else {
-		x->_pParent->_pRight = y;
+		n->rightChild = insertHelper(n->rightChild, item);
 	}
-	y->_pLeft = x;
-	x->_pParent = y;
+	if (n->rightChild != nullptr && n->rightChild->isRed) {
+		n = leftRotate(n);
+	}
+	if (n->leftChild != nullptr && n->leftChild->isRed
+		&& n->leftChild->leftChild != nullptr && n->leftChild->leftChild->isRed) {
+		n = rightRotate(n);
+	}
+	return n;
 }
 
 template<class T>
-void Tree<T>::rightRotate(Node<T> *& x)
+inline void Tree<T>::colourFlip(Node<T>* n)
 {
-	Node<T> *y = x->_pLeft;
-	x->_pLeft = y->_pRight;
 
-	if (y->_pLeft != nullptr) {
-		y->_pLeft->_pParent = x;
-	}
-	y->_pParent = x->_pParent;
-	if (x->_pParent == nullptr) {
-		_pRoot = y;
-	}
-	else if (x == x->_pParent->_pLeft) {
-		x->_pParent->_pLeft = y;
-	}
-	else {
-		x->_pParent->_pRight = y;
-	}
-	y->_pRight = x;
-	x->_pParent = y;
+	n->isRed = !n->isRed;
+	n->leftChild->isRed = !n->leftChild->isRed;
+	n->rightChild->isRed = !n->rightChild->isRed;
+
 }
 
 template<class T>
-void Tree<T>::fixViolations(Node<T> *& n)
+inline Node<T>* Tree<T>::moveRedLeft(Node<T>* n)
 {
-	while (n->_pParent != nullptr && n->_pParent->isRed) {
-		if (n->_pParent == n->_pParent->_pParent->_pLeft) {
-			Node<T> * y = n->_pParent->_pParent->_pRight;
-			if (y->isRed) {
-				n->_pParent->isRed = false;
-				y->isRed = false;
-				n->_pParent->_pParent->isRed = true;
-				n = n->_pParent->_pParent;
-			}
-			else if (n == n->_pParent->_pRight) {
-				n = n->_pParent;
-				leftRotate(n);
-			}
-			n->_pParent->isRed = false;
-			n->_pParent->_pParent->isRed = true;
-			rightRotate(n->_pParent->_pParent);
-		}
-		else {
-			Node<T> * y = n->_pParent->_pParent->_pLeft;
-			if (y->isRed) {
-				n->_pParent->isRed = false;
-				y->isRed = false;
-				n->_pParent->_pParent->isRed = true;
-				n = n->_pParent->_pParent;
-			}
-			else if (n == n->_pParent->_pLeft) {
-				n = n->_pParent;
-				leftRotate(n);
-			}
-			n->_pParent->isRed = false;
-			n->_pParent->_pParent->isRed = true;
-			rightRotate(n->_pParent->_pParent);
-		}
+	colourFlip(n);
+	if (n->rightChild->leftChild != nullptr && n->rightChild->leftChild->isRed) {
+		n->rightChild = rightRotate(n->rightChild);
+		n = leftRotate(n);
+		colourFlip(n);
 	}
-	_pRoot->isRed = false;
+	return n;
 }
 
 template<class T>
-Node<T> * Tree<T>::insertHelper(Node<T> *&n)
+inline Node<T>* Tree<T>::moveRedRight(Node<T>* n)
 {
-	Node<T> *x = _pRoot;
-	Node<T> *y = nullptr;
+	colourFlip(n);
+	if (n->leftChild->leftChild != nullptr && n->leftChild->leftChild->isRed) {
+		n = rightRotate;
+		colourFlip(n);
+	}
+	return n;
+}
 
-	while (x != nullptr) {
-		y = x;
-		if (n->_value < x->_value) {
-			x = x->_pLeft;
-		}
-		else {
-			x = x->_pRight;
-		}
+template<class T>
+inline Node<T>* Tree<T>::fix(Node<T>* n)
+{
+	if (n->rightChild != nullptr && n->rightChild->isRed) {
+		n = leftRotate(n);
 	}
-	n->_pParent = y;
-
-	if (y == nullptr) {
-		_pRoot = n;
+	if (n->leftChild != nullptr && n->leftChild->isRed && n->leftChild->leftChild != nullptr && n->leftChild->leftChild->isRed) {
+		n = rightRotate(n);
 	}
-	else if (n->_value < y->_value) {
-		y->_pLeft = n;
+	if (n->leftChild != nullptr && n->leftChild->isRed && n->rightChild != nullptr && n->rightChild->isRed) {
+		colourFlip(n);
 	}
-	else {
-		y->_pRight = n;
-	}
-	n->_pLeft = nullptr;
-	n->_pRight = nullptr;
-	n->isRed = true;
-
-	fixViolations(n);
 	return n;
 }
 
@@ -194,7 +176,7 @@ template<class T>
 Tree<T>::Tree(T i)
 {
 	auto *n = new Node<T>(i);
-	_pRoot = n;
+	root = n;
 	n->isRed = false;
 
 }
@@ -202,34 +184,30 @@ Tree<T>::Tree(T i)
 template<class T>
 Tree<T>::~Tree()
 {
-	deleteHelper(_pRoot);
+	deleteHelper(root);
 }
 
 template<class T>
-Node<T> * Tree<T>::insert(T &item)
+void Tree<T>::insert(T &item)
 {
-	auto *p = search(item);
-	if (p == nullptr) {
-		Node<T> *n = new Node<T>(item);
-		p = insertHelper(n);
-	}
-	return p;
+	root = insertHelper(root, item);
+	root->isRed = false;
 }
 
 
 template<class T>
 void Tree<T>::printInOrder()
 {
-	printHelper(_pRoot);
+	printHelper(root);
 }
 
 template<class T>
 Node<T> * Tree<T>::search(T &n)
 {
-	auto *rider = _pRoot;
+	auto *rider = root;
 	while (rider != nullptr) {
-		if (rider->_value == n) return rider;
-		else rider = (rider->_value < n) ? rider->_pRight : rider->_pLeft;
+		if (rider->value == n) return rider;
+		else rider = (rider->value > n) ? rider->rightChild : rider->leftChild;
 	}
 	return nullptr;
 }

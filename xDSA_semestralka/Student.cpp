@@ -18,6 +18,14 @@ bool operator<(const Student & s1, const Student & s2)
 	return s1._id < s2._id;
 }
 
+Student::Student()
+{
+	std::srand(std::time(nullptr));
+	_id = std::rand();
+	_jmeno = "John";
+	_prijmeni = "Doe";
+}
+
 Student::~Student()
 {
 }

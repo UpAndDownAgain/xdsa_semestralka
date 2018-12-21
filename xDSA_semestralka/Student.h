@@ -1,6 +1,9 @@
 #pragma once
 #include <string>
 #include <iostream>
+#include <cstdlib>
+#include <ctime>
+
 using std::string;
 
 class Student
@@ -12,6 +15,7 @@ private:
 	int _id;
 
 public:
+	Student();
 	Student(string n, string p, int i) : _jmeno(n), _prijmeni(p), _id(i) {};
 	~Student();
 	string getName() { return _jmeno + " " + _prijmeni; };
