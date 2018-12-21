@@ -262,6 +262,7 @@ inline void RnBtree<T>::fixDeletion(Node<T>*& n)
 	if (n == nullptr) return;
 
 	if (n == root) {
+		delete n;
 		root = nullptr;
 		return;
 	}
