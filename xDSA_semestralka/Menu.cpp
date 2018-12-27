@@ -23,9 +23,15 @@ void Menu::addMenuItem(std::string item) {
 	menuItems.push_back(item);
 }
 void Menu::printMenu() {
-
+	/*
 	for (std::size_t iter = 0; iter < menuItems.size(); ++iter ) {
 		std::cout << iter << " - " << menuItems[iter] << std::endl;
+	}*/
+	auto rider = menuItems.getHead();
+	size_t i = 0;
+	while (rider != nullptr) {
+		std::cout << i++ << " - " << rider->value << std::endl;
+		rider = rider->next;
 	}
 }
 bool Menu::readUserChoice() {

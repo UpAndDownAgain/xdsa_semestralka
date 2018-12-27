@@ -151,6 +151,7 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="linkedlist.h" />
     <ClInclude Include="Menu.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="rnbtree.h" />

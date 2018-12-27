@@ -23,32 +23,33 @@ private:
 	
 	void rotateLeft(Node<T> *n);
 	void rotateRight(Node<T> *n);
-	int isRed(Node<T> *n);
+	int isRed(Node<T> *n); //vrati barvu node 0-black 1-red 2-double black
 	void swapColours(Node<T> *n1, Node<T> *n2);
-	void setColour(Node<T> *n, int color);
-	void fixViolations(Node<T> *&n);	
-	Node<T> * insert(Node<T> *n, Node<T> * item);
-	std::ostream& printInOrder(std::ostream&, Node<T> * n);
-	Node<T> * deleteHelper(Node<T> *&n, T &item);
-	Node<T> * minValueNode(Node<T> *n);
-	void fixDeletion(Node<T> *&n);
-	void cleanup(Node<T> *n);
+	void setColour(Node<T> *n, int color); //nastavi barvu 0-black 1-red 2-double black
+	void fixViolations(Node<T> *&n);	//oprava po insert
+	Node<T> * insert(Node<T> *n, Node<T> * item); //rekurz insert
+	std::ostream& printInOrder(std::ostream&, Node<T> * n); //rekurzivni tisk do streamu
+	Node<T> * deleteHelper(Node<T> *&n, T &item); //rekurzivni delete
+	Node<T> * minValueNode(Node<T> *n); //nejmensi potomek n
+	void fixDeletion(Node<T> *&n); //oprava po delete
+	void cleanup(Node<T> *n); //postorder odstraneni vsech node
 	
 public:
 	RnBtree<T>() : root(nullptr) {};
 	~RnBtree<T>();
-	void push(T item);
-	std::ostream& print(std::ostream& os);
-	void deleteValue(T item);
+	void push(T item); //vlozeni vola deleteHelper
+	std::ostream& print(std::ostream& os); //tisk vola printInOrder
+	void deleteValue(T item); //vola deleteHelper
 	bool isEmpty();
-	void purge();
+	void purge(); //odstrani vsechny node, vola cleanup stejne jako destruktor
+	Node<T> * search(T id);
 };
 
 template<class T>
 inline void RnBtree<T>::rotateLeft(Node<T>* n)
 {
 	Node<T> * rightChild = n->rightChild;
-	n->rightChild = rightChild->leftChild;
+	n->rightChild = rightChild->leftChild; //
 	
 	if (n->rightChild != nullptr) {
 		n->rightChild->parent = n;
@@ -125,10 +126,10 @@ inline void RnBtree<T>::fixViolations(Node<T> *& n)
 
 		if (parent == grandparent->leftChild) {
 			Node<T> * uncle = grandparent->rightChild;
-			if (isRed(uncle)==1) {
-				setColour(uncle, 0);
-				setColour(parent, 0);
-				setColour(grandparent, 1);
+			if (isRed(uncle)==1) {//pokud je cerveny
+				setColour(uncle, 0); //na cerno
+				setColour(parent, 0); //na cerno
+				setColour(grandparent, 1); //na cerveno
 				n = grandparent;
 			}
 			else {
@@ -145,10 +146,10 @@ inline void RnBtree<T>::fixViolations(Node<T> *& n)
 		else
 		{
 			Node<T> * uncle = grandparent->leftChild;
-			if (isRed(uncle) == 1) {
-				setColour(uncle, 0);
-				setColour(parent, 0);
-				setColour(grandparent, 1);
+			if (isRed(uncle) == 1) {//pokud je cerveny
+				setColour(uncle, 0); //obarveni na cerno
+				setColour(parent, 0); //na cerno
+				setColour(grandparent, 1); //na cerveno
 				n = grandparent;
 			}
 			else {
@@ -163,7 +164,7 @@ inline void RnBtree<T>::fixViolations(Node<T> *& n)
 			}
 		}
 	}
-	setColour(root, 0);
+	setColour(root, 0);//obarveni na cerno
 }
 
 template<class T>
@@ -219,6 +220,19 @@ inline void RnBtree<T>::purge()
 }
 
 template<class T>
+inline Node<T> * RnBtree<T>::search(T id)
+{
+	Node<T> * rider = root;
+	
+	while (rider != nullptr) {
+		if (rider->value == id) return rider;
+		if (rider->value > id) rider = rider->leftChild;
+		else rider = rider->rightChild;
+	}
+	return rider;
+}
+
+template<class T>
 inline std::ostream& RnBtree<T>::printInOrder(std::ostream &os,Node<T>* n)
 {
 	if (n == nullptr) return os;
@@ -238,11 +252,11 @@ inline Node<T>* RnBtree<T>::deleteHelper(Node<T> *&n, T &item)
 	if (item > n->value) {
 		return deleteHelper(n->rightChild, item);
 	}
-	if (n->leftChild == nullptr || n->rightChild == nullptr) {
+	if (n->leftChild == nullptr || n->rightChild == nullptr) { //pokud ma jen jednoho nebo zadneho potomka
 		return n;
 	}
 
-	Node<T> * temp = minValueNode(n->rightChild);
+	Node<T> * temp = minValueNode(n->rightChild); //2 potomci
 	n->value = temp->value;
 	return deleteHelper(n->rightChild, temp->value);
 }
@@ -267,15 +281,15 @@ inline void RnBtree<T>::fixDeletion(Node<T>*& n)
 		root = nullptr;
 		return;
 	}
-	if (isRed(n) == 1 || isRed(n->leftChild) == 1 || isRed(n->rightChild) == 1) {
-		Node<T> * child = n->leftChild != nullptr ? n->leftChild : n->rightChild;
+	if (isRed(n) == 1 || isRed(n->leftChild) == 1 || isRed(n->rightChild) == 1) { 
+		Node<T> * child = n->leftChild != nullptr ? n->leftChild : n->rightChild; 
 
-		if (n == n->parent->leftChild) {
-			n->parent->leftChild = child;
+		if (n == n->parent->leftChild) { //pokud n je levy potomek
+			n->parent->leftChild = child; //prepojeni potomka n na rodice
 			if (child != nullptr) {
-				child->parent = n->parent;
+				child->parent = n->parent; //nastaveni rodice u potomka
 			}
-			setColour(child, 0);
+			setColour(child, 0); //obarveni na cerno
 			delete n;
 		}
 		else {
@@ -283,7 +297,7 @@ inline void RnBtree<T>::fixDeletion(Node<T>*& n)
 			if (child != nullptr) {
 				child->parent = n->parent;
 			}
-			setColour(child, 0);
+			setColour(child, 0);//obarveni na cerno
 			delete n;
 		}
 	}
@@ -292,38 +306,38 @@ inline void RnBtree<T>::fixDeletion(Node<T>*& n)
 		Node<T> * parent = nullptr;
 		Node<T> * p = n;
 		//p->doubleBlack = 1;
-		setColour(p, 3);
-		while (p != root && isRed(p) == 3/*p != nullptr && p->doubleBlack == 1*/) {
+		setColour(p, 3);//2 cerne node po sobe
+		while (p != root && isRed(p) == 3/*p != nullptr && p->doubleBlack == 1*/) {//odstraneni 2 cernych node po sobe
 			parent = p->parent;
 			if (p == parent->leftChild) {
 				sibling = parent->rightChild;
 				if (isRed(sibling) == 1) {
-					setColour(sibling, 0);
-					setColour(parent, 1);
+					setColour(sibling, 0);//na cerno
+					setColour(parent, 1);//na cerveno
 					rotateLeft(parent);
 				}
 				else {
 					if (isRed(sibling->leftChild) == 0 && isRed(sibling->rightChild) == 0) {
-						setColour(sibling, 1);
+						setColour(sibling, 1);//na cerveno
 						if (isRed(parent) == 1) {
-							setColour(parent, 0);
+							setColour(parent, 0);//na cerno
 						}
 						else {
 							//parent->doubleBlack = 1;
-							setColour(parent, 3);
+							setColour(parent, 3);//dvojita cerna
 						}
 						p = parent;
 					}
 					else {
 						if (isRed(sibling->rightChild) == 0) {
-							setColour(sibling->leftChild, 0);
-							setColour(sibling, 1);
+							setColour(sibling->leftChild, 0);//na cerno
+							setColour(sibling, 1);//na cerveno
 							rotateRight(sibling);
 							sibling = parent->rightChild;
 						}
 						setColour(sibling, parent->isRed);
-						setColour(parent, 0);
-						setColour(sibling->rightChild, 0);
+						setColour(parent, 0);//na cerno
+						setColour(sibling->rightChild, 0);//na cerno
 						rotateLeft(parent);
 						break;
 					}
@@ -332,8 +346,8 @@ inline void RnBtree<T>::fixDeletion(Node<T>*& n)
 			else {
 				sibling = parent->leftChild;
 				if (isRed(sibling) == 1) {
-					setColour(sibling, 0);
-					setColour(parent, 1);
+					setColour(sibling, 0);//na cerno
+					setColour(parent, 1);//na cerveno
 					rotateRight(parent);
 				}
 				else {
@@ -371,12 +385,12 @@ inline void RnBtree<T>::fixDeletion(Node<T>*& n)
 			n->parent->rightChild = nullptr;
 		}
 		delete n;
-		setColour(root, 0);
+		setColour(root, 0);//root na cerno
 	}
 }
 
 template<class T>
-inline void RnBtree<T>::cleanup(Node<T>* n)
+inline void RnBtree<T>::cleanup(Node<T>* n)//post order smazani vsech node pro destruktor a purge
 {
 	if (n == nullptr) return;
 	cleanup(n->leftChild);
